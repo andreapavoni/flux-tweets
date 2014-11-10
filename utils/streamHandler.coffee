@@ -2,7 +2,7 @@ Tweet = require("../models/Tweet")
 
 module.exports = (stream, io) ->
   stream.on "error", (err, code) ->
-    console.log "STREAM ERROR: #{err} #{code}"
+    console.log "TWITTER STREAM ERROR: #{err} #{code}"
 
   # When tweets get sent our way ...
   stream.on "data", (data) ->

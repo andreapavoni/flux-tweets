@@ -20,7 +20,9 @@ app.set "view engine", "handlebars"
 app.disable "etag"
 
 # Connect to our mongo database
-mongoose.connect "mongodb://localhost/react-tweets"
+mongoose.connect config.mongodbUrl, (err, res) ->
+  if err
+    console.log "MONGODB ERROR connecting to #{config.mongodbUrl}: #{err} "
 
 # Routes
 app.get "/", routes.index
