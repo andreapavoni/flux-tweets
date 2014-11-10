@@ -5,12 +5,12 @@ exphbs = require("express-handlebars")
 http = require("http")
 mongoose = require("mongoose")
 ntwitter = require("ntwitter")
+
 routes = require("./routes")
 streamHandler = require("./utils/streamHandler")
 
-# Create an express instance and set a port variable
+# Create an express instance
 app = express()
-port = process.env.PORT or 8080
 
 # Set handlebars as the templating engine
 app.engine "handlebars", exphbs(defaultLayout: "main")
@@ -22,13 +22,8 @@ app.disable "etag"
 # Connect to our mongo database
 mongoose.connect "mongodb://localhost/react-tweets"
 
-# Create a new ntwitter instance
-twit = new ntwitter(config.twitter)
-
-# Index Route
+# Routes
 app.get "/", routes.index
-
-# Page Route
 app.get "/page/:page/:skip", routes.page
 
 # Set /public as our static content dir
@@ -39,6 +34,9 @@ server = http.createServer(app)
 
 # Initialize socket.io
 io = require("socket.io").listen(server)
+
+# Create a new ntwitter instance
+twit = new ntwitter(config.twitter)
 
 # Set a stream listener for tweets matching tracking keywords
 twit.stream "statuses/filter", {track: "javascript"}, (stream) ->
