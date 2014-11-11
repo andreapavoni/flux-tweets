@@ -1,4 +1,5 @@
 React = require('react')
+TweetsActions = require('../actions/TweetsActions')
 
 module.exports = NotificationBar = React.createClass(
   render: ->
@@ -7,7 +8,7 @@ module.exports = NotificationBar = React.createClass(
 
     return (
       <div className={className}>
-        <p>There are {count} new tweets! <a href="#top" onClick={this.props.onShowNewTweets}>Click here to see them.</a></p>
+        <p>There are {count} new tweets! <a href="#top" onClick={TweetsActions.showNewTweets}>Click here to see them.</a></p>
       </div>
     )
 )

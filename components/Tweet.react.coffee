@@ -2,7 +2,7 @@ React = require('react')
 
 module.exports = Tweet = React.createClass(
   render: ->
-    tweet = @.props.tweet
+    tweet = @props.tweet
     className = "tweet#{ if tweet.active then ' active' else '' }"
 
     return (
