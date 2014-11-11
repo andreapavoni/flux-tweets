@@ -54,6 +54,30 @@ module.exports = NotificationBar = React.createClass({
 
 
 },{"react":153}],4:[function(require,module,exports){
+var React, Timeline, Tweet;
+
+React = require("react");
+
+Tweet = require("./Tweet.react");
+
+module.exports = Timeline = React.createClass({
+  render: function() {
+    var content;
+    content = this.props.tweets.map(function(tweet) {
+      return React.createElement(Tweet, {
+        "key": tweet.twid,
+        "tweet": tweet
+      });
+    });
+    return React.createElement("ul", {
+      "className": "tweets"
+    }, content);
+  }
+});
+
+
+
+},{"./Tweet.react":5,"react":153}],5:[function(require,module,exports){
 var React, Tweet;
 
 React = require('react');
@@ -80,36 +104,12 @@ module.exports = Tweet = React.createClass({
 
 
 
-},{"react":153}],5:[function(require,module,exports){
-var React, Tweet, Tweets;
+},{"react":153}],6:[function(require,module,exports){
+var Loader, NotificationBar, React, Timeline, TweetsApp;
 
 React = require("react");
 
-Tweet = require("./Tweet.react");
-
-module.exports = Tweets = React.createClass({
-  render: function() {
-    var content;
-    content = this.props.tweets.map(function(tweet) {
-      return React.createElement(Tweet, {
-        "key": tweet.twid,
-        "tweet": tweet
-      });
-    });
-    return React.createElement("ul", {
-      "className": "tweets"
-    }, content);
-  }
-});
-
-
-
-},{"./Tweet.react":4,"react":153}],6:[function(require,module,exports){
-var Loader, NotificationBar, React, Tweets, TweetsApp;
-
-React = require("react");
-
-Tweets = require("./Tweets.react");
+Timeline = require("./Timeline.react");
 
 Loader = require("./Loader.react");
 
@@ -216,7 +216,7 @@ module.exports = TweetsApp = React.createClass({
   render: function() {
     return React.createElement("div", {
       "className": "tweets-app"
-    }, React.createElement(Tweets, {
+    }, React.createElement(Timeline, {
       "tweets": this.state.tweets
     }), React.createElement(Loader, {
       "paging": this.state.paging
@@ -229,7 +229,7 @@ module.exports = TweetsApp = React.createClass({
 
 
 
-},{"./Loader.react":2,"./NotificationBar.react":3,"./Tweets.react":5,"react":153}],7:[function(require,module,exports){
+},{"./Loader.react":2,"./NotificationBar.react":3,"./Timeline.react":4,"react":153}],7:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

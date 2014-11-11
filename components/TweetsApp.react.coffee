@@ -1,5 +1,5 @@
 React = require("react")
-Tweets = require("./Tweets.react")
+Timeline = require("./Timeline.react")
 Loader = require("./Loader.react")
 NotificationBar = require("./NotificationBar.react")
 
@@ -143,7 +143,7 @@ module.exports = TweetsApp = React.createClass(
   render: ->
     return(
       <div className="tweets-app">
-        <Tweets tweets={this.state.tweets} />
+        <Timeline tweets={this.state.tweets} />
         <Loader paging={this.state.paging}/>
         <NotificationBar count={this.state.count} onShowNewTweets={this.showNewTweets}/>
       </div>

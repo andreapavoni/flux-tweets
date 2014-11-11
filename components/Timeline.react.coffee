@@ -2,7 +2,7 @@ React = require("react")
 Tweet = require("./Tweet.react")
 
 # Render our tweets
-module.exports = Tweets = React.createClass(
+module.exports = Timeline = React.createClass(
   render: ->
     # Build list items of single tweet components using map
     content = @props.tweets.map (tweet) ->
