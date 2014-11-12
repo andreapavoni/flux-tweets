@@ -1,6 +1,5 @@
 # Real Time Twitter Stream with Node and React
 
-
 This is a fork of the [code repository](https://github.com/scotch-io/react-tweets) for the awesome tutorial by @kenwheeler: [Build A Real-Time Twitter Stream with Node and React.js](http://scotch.io/tutorials/javascript/build-a-real-time-twitter-stream-with-node-and-react-js). I've tinkered a bit with this code:
 
 * CoffeeScript instead of plain JS
@@ -13,6 +12,10 @@ This is a fork of the [code repository](https://github.com/scotch-io/react-tweet
 * nodejs
 * npm
 * mongodb
+
+## Live Demo
+
+I've put a [live demo on heroku](http://flux-tweets.herokuapp.com)
 
 ## How to Use
 
