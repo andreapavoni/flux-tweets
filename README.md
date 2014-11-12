@@ -4,12 +4,15 @@
 This is a fork of the [code repository](https://github.com/scotch-io/react-tweets) for the awesome tutorial by @kenwheeler: [Build A Real-Time Twitter Stream with Node and React.js](http://scotch.io/tutorials/javascript/build-a-real-time-twitter-stream-with-node-and-react-js). I've tinkered a bit with this code:
 
 * CoffeeScript instead of plain JS
-* ReactJS  >= 0.12
-  * Flux architecture
+* [ReactJS](http://facebook.github.io/react/)  >= 0.12
+* [Flux](http://facebook.github.io/flux/)
+* various refactorings
 
 ## Requirements
 
-- node and npm
+* nodejs
+* npm
+* mongodb
 
 ## How to Use
 
