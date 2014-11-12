@@ -177,14 +177,15 @@ module.exports = TweetsApp = React.createClass({
     return window.addEventListener("scroll", this._onWindowScroll);
   },
   componentWillUnmount: function() {
-    return TweetStore.removeChangeListener(this._onChange);
+    TweetStore.removeChangeListener(this._onChange);
+    return window.removeEventListener("scroll", this._onWindowScroll);
   },
   _onChange: function() {
     return this.setState(getTweetsState());
   },
   _onWindowScroll: function() {
     var h, s, scrolled;
-    h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    h = window.innerHeight || document.documentElement.clientHeight || 0;
     s = document.body.scrollTop || document.documentElement.scrollTop || 0;
     scrolled = (h + s) > document.body.offsetHeight;
     return TweetsActions.loadPagedTweets(scrolled);
@@ -275,12 +276,12 @@ loadPage = function(page) {
       if (tweets.length > 0) {
         updated = _tweets;
         tweets.forEach(function(tweet) {
-          return _tweets.push(tweet);
+          return updated.push(tweet);
         });
         return setTimeout((function() {
-          _tweets = update;
+          _tweets = updated;
           return _paging = false;
-        }), 500);
+        }), 1500);
       } else {
         _done = true;
         return _paging = false;
