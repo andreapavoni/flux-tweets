@@ -1,9 +1,13 @@
 gulp = require("gulp")
 gutil = require("gulp-util")
-browserify = require('gulp-browserify')
+browserify = require("gulp-browserify")
+nodemon = require("gulp-nodemon")
 rename = require("gulp-rename")
 uglify = require("gulp-uglify")
 size = require("gulp-size")
+
+DEST='./public'
+JS_BUNDLE='bundle'
 
 gulp.task 'build', ->
   gulp.src('./client/app.coffee', { read: false })
@@ -11,14 +15,27 @@ gulp.task 'build', ->
       transform: ['coffee-reactify']
       extensions: ['.coffee']
     ))
-    .pipe(rename('bundle.js'))
-    .pipe(gulp.dest('./public/js'))
-    .pipe(size showFiles: true, title: "Plain JS")
     .on("error", gutil.log)
+    .pipe(rename("#{JS_BUNDLE}.js"))
+    .pipe gulp.dest("#{DEST}/js")
+    .pipe(size showFiles: true, title: "Plain JS")
+
+gulp.task 'dist', ['build'], ->
+  gulp.src("#{DEST}/js/#{JS_BUNDLE}.js")
     .pipe(uglify())
-    .pipe(rename("bundle.min.js"))
-    .pipe(gulp.dest("./public/js"))
+    .pipe(rename("#{JS_BUNDLE}.min.js"))
+    .pipe(gulp.dest("#{DEST}/js"))
     .pipe(size showFiles: true, title: "Minified JS")
     .on("error", gutil.log)
+
+gulp.task "watch", ->
+  gulp.watch "client/**/*.coffee", ['build']
+
+gulp.task "dev", ['watch'], ->
+  nodemon(
+    script: "./server/server.coffee"
+    ext: "coffee"
+    env: { 'NODE_ENV': 'development' }
+  )
 
 gulp.task "default", ["build"]

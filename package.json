@@ -31,14 +31,13 @@
     "coffee-reactify": "^2.0.0",
     "gulp": "^3.8.10",
     "gulp-browserify": "^0.5.0",
+    "gulp-nodemon": "^1.0.4",
     "gulp-rename": "^1.2.0",
     "gulp-size": "^1.1.0",
     "gulp-uglify": "^1.0.1",
-    "gulp-util": "^3.0.1",
-    "watchify": "~2.1.0"
+    "gulp-util": "^3.0.1"
   },
   "scripts": {
-    "watch": "watchify client/app.coffee -o public/js/bundle.js -v",
     "start": "coffee ./bin/www"
   }
 }
