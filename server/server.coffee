@@ -4,6 +4,7 @@ exphbs = require("express-handlebars")
 http = require("http")
 mongoose = require("mongoose")
 ntwitter = require("ntwitter")
+favicon = require("serve-favicon")
 
 config = require("../config")
 routes = require("./routes")
@@ -34,6 +35,9 @@ mongoose.connect config.mongodbUrl, (err, res) ->
 # Routes
 app.get "/", routes.index
 app.get "/page/:page/:skip", routes.page
+
+# Serve favicon
+app.use favicon("#{__dirname}/../public/favicon.ico")
 
 # Set /public as our static content dir
 app.use "/", express.static("#{__dirname}/../public/")
