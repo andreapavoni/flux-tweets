@@ -33,8 +33,8 @@
     "watchify": "~2.1.0"
   },
   "scripts": {
-    "watch": "watchify app.coffee -o public/js/bundle.js -v",
-    "browserify": "./node_modules/.bin/browserify app -t coffee-reactify --extension='.coffee' -o public/js/bundle.js",
+    "watch": "watchify client/app.coffee -o public/js/bundle.js -v",
+    "browserify": "./node_modules/.bin/browserify client/app -t coffee-reactify --extension='.coffee' -o public/js/bundle.js",
     "build": "npm run browserify",
     "dev": "npm run watch & npm start",
     "start": "coffee ./bin/www"

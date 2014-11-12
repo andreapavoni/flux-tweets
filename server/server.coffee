@@ -1,11 +1,11 @@
 # Require our dependencies
-config = require("./config")
 express = require("express")
 exphbs = require("express-handlebars")
 http = require("http")
 mongoose = require("mongoose")
 ntwitter = require("ntwitter")
 
+config = require("../config")
 routes = require("./routes")
 streamHandler = require("./utils/streamHandler")
 
@@ -13,7 +13,14 @@ streamHandler = require("./utils/streamHandler")
 app = express()
 
 # Set handlebars as the templating engine
-app.engine "handlebars", exphbs(defaultLayout: "main")
+viewsPath = "#{__dirname}/views"
+hbsConfig =
+  defaultLayout: "main"
+  layoutsDir: "#{viewsPath}/layouts/"
+  partialsDir: viewsPath
+
+app.set('views', viewsPath)
+app.engine "handlebars", exphbs(hbsConfig)
 app.set "view engine", "handlebars"
 
 # Disable etag headers on responses
@@ -29,7 +36,7 @@ app.get "/", routes.index
 app.get "/page/:page/:skip", routes.page
 
 # Set /public as our static content dir
-app.use "/", express.static(__dirname + "/public/")
+app.use "/", express.static("#{__dirname}/../public/")
 
 # Initialize http server
 server = http.createServer(app)
