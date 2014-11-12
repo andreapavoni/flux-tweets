@@ -3,6 +3,14 @@
   "version": "0.0.0",
   "description": "Realtime Twitter stream with ReactJS and Flux",
   "author": "Andrea Pavoni",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/apeacox/flux-tweets.git"
+  },
+  "author": {
+    "name": "Andrea Pavoni",
+    "url": "http://andreapavoni.com/"
+  },
   "license": "MIT",
   "dependencies": {
     "coffee-react": "~2.0.0",
