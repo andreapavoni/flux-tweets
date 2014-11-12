@@ -33,13 +33,16 @@ loadPage = (page) ->
 
       # If we still have tweets...
       if tweets.length > 0
+        # Push them onto the end of the current tweets array
+        updated = _tweets
+        tweets.forEach (tweet) ->
+          _tweets.push tweet
+
         # This app is so fast, I actually use a timeout for dramatic effect
         # Otherwise you'd never see our super sexy loader svg
         setTimeout (->
-          # Push them onto the end of the current tweets array
-          tweets.forEach (tweet) ->
-            _tweets.push tweet
-
+          # Update tweets
+          _tweets = update
           # Paging completed
           _paging = false
         ), 500

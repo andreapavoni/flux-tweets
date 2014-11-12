@@ -269,14 +269,16 @@ loadPage = function(page) {
   request = new XMLHttpRequest();
   request.open("GET", "page/" + page + "/" + _skip, true);
   request.onload = function() {
-    var tweets;
+    var tweets, updated;
     if (request.status >= 200 && request.status < 400) {
       tweets = JSON.parse(request.responseText);
       if (tweets.length > 0) {
+        updated = _tweets;
+        tweets.forEach(function(tweet) {
+          return _tweets.push(tweet);
+        });
         return setTimeout((function() {
-          tweets.forEach(function(tweet) {
-            return _tweets.push(tweet);
-          });
+          _tweets = update;
           return _paging = false;
         }), 500);
       } else {

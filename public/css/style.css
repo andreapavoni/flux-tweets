@@ -209,10 +209,4 @@ footer .update-message
   footer a.link-back {
     font-size: 0;
   }
-
-  footer a:after {
-    font-size: 12px;
-
-    content: '← Back To Learning React';
-  }
 }
