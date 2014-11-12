@@ -29,13 +29,22 @@ module.exports = TweetsApp = React.createClass(
     socket.on "tweet", (data) ->
       TweetsActions.addTweet data
 
-    TweetStore.checkWindowScroll()
+    window.addEventListener "scroll", @_onWindowScroll
 
   componentWillUnmount: ->
     TweetStore.removeChangeListener(@_onChange)
 
   _onChange: ->
     @setState getTweetsState()
+
+  _onWindowScroll: ->
+    # Get scroll pos & window data
+    h = Math.max(document.documentElement.clientHeight, window.innerHeight or 0)
+    s = (document.body.scrollTop or document.documentElement.scrollTop or 0)
+    # Check if window has scrolled
+    scrolled = (h + s) > document.body.offsetHeight
+    # Call action
+    TweetsActions.loadPagedTweets(scrolled)
 
   # Render the component
   render: ->

@@ -10,11 +10,7 @@ _paging = false
 _skip = 0
 _done = false
 
-loadTweets = (tweets) ->
-  _tweets = tweets
-
 addTweet = (tweet) ->
-  console.log "called addTweet in store: #{JSON.stringify(tweet)}"
   # Increment the unread count
   _count = _count + 1
   # Increment the skip count
@@ -33,36 +29,29 @@ loadPage = (page) ->
     # If everything is cool...
     if request.status >= 200 and request.status < 400
       # Load our next page
-      loadPagedTweets JSON.parse(request.responseText)
+      tweets = JSON.parse(request.responseText)
+
+      # If we still have tweets...
+      if tweets.length > 0
+        # This app is so fast, I actually use a timeout for dramatic effect
+        # Otherwise you'd never see our super sexy loader svg
+        setTimeout (->
+          # Push them onto the end of the current tweets array
+          tweets.forEach (tweet) ->
+            _tweets.push tweet
+
+          # Paging completed
+          _paging = false
+        ), 500
+      else
+        # Paging complete
+        _done = true
+        _paging = false
     else
       # Set application state (Not paging, paging complete)
       _paging = false
       _done = true
   request.send()
-
-
-# Load tweets fetched from the server
-loadPagedTweets = (tweets) ->
-  # If we still have tweets...
-  if tweets.length > 0
-    # Get current application state
-    updated = _tweets
-
-    # Push them onto the end of the current tweets array
-    tweets.forEach (tweet) ->
-      updated.push tweet
-
-    # This app is so fast, I actually use a timeout for dramatic effect
-    # Otherwise you'd never see our super sexy loader svg
-    setTimeout (->
-      # Set application state (Not paging, add tweets)
-      _tweets = updated
-      _paging = false
-    ), 1000
-  else
-    # Set application state (Not paging, paging complete)
-    _done = true
-    _paging = false
 
 
 # Show the unread tweets
@@ -79,13 +68,8 @@ showNewTweets = ->
   _count = 0
 
 
-# Check if more tweets should be loaded, by scroll position
-onWindowScroll = ->
-  # Get scroll pos & window data
-  h = Math.max(document.documentElement.clientHeight, window.innerHeight or 0)
-  s = (document.body.scrollTop or document.documentElement.scrollTop or 0)
-  scrolled = (h + s) > document.body.offsetHeight
 
+loadPagedTweets = (scrolled) ->
   # If scrolled enough, not currently paging and not complete...
   if scrolled and not _paging and not _done
     # Set application state (Paging, Increment page)
@@ -120,10 +104,6 @@ TweetStore = _.extend({}, EventEmitter::,
   emitChange: ->
     @emit "change"
 
-  # Attach scroll event to the window for infinity paging
-  checkWindowScroll: ->
-    window.addEventListener "scroll", onWindowScroll
-
   # Add change listener
   addChangeListener: (callback) ->
     @on "change", callback
@@ -139,16 +119,12 @@ AppDispatcher.register (payload) ->
 
   # Respond to actions
   switch action.actionType
-    when TweetsConstants.LOAD_PAGED_TWEETS
-      loadPagedTweets(action.data)
-    when TweetsConstants.LOAD_TWEETS
-      loadTweets(action.data)
-    when TweetsConstants.LOAD_PAGE
-     loadPage(action.data)
-    when TweetsConstants.TWEET_ADD
+    when TweetsConstants.ADD_TWEET
       addTweet(action.tweet)
     when TweetsConstants.SHOW_NEW_TWEETS
       showNewTweets()
+    when TweetsConstants.LOAD_PAGED_TWEETS
+      loadPagedTweets(action.scrolled)
     else
       return true
 

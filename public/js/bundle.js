@@ -6,29 +6,16 @@ AppDispatcher = require("../dispatcher/AppDispatcher");
 TweetsConstants = require("../constants/TweetsConstants");
 
 module.exports = TweetsActions = {
-  loadTweets: function(tweets) {
-    return AppDispatcher.handleAction({
-      actionType: TweetsConstants.LOAD_TWEETS,
-      tweets: tweets
-    });
-  },
-  loadPagedTweets: function(tweets) {
+  loadPagedTweets: function(scrolled) {
     return AppDispatcher.handleAction({
       actionType: TweetsConstants.LOAD_PAGED_TWEETS,
-      tweets: tweets
+      scrolled: scrolled
     });
   },
   addTweet: function(tweet) {
-    console.log("called addTweet in action: " + (JSON.stringify(tweet)));
     return AppDispatcher.handleAction({
-      actionType: TweetsConstants.TWEET_ADD,
+      actionType: TweetsConstants.ADD_TWEET,
       tweet: tweet
-    });
-  },
-  loadPage: function(page) {
-    return AppDispatcher.handleAction({
-      actionType: TweetsConstants.LOAD_PAGE,
-      page: page
     });
   },
   showNewTweets: function() {
@@ -185,13 +172,20 @@ module.exports = TweetsApp = React.createClass({
     socket.on("tweet", function(data) {
       return TweetsActions.addTweet(data);
     });
-    return TweetStore.checkWindowScroll();
+    return window.addEventListener("scroll", this._onWindowScroll);
   },
   componentWillUnmount: function() {
     return TweetStore.removeChangeListener(this._onChange);
   },
   _onChange: function() {
     return this.setState(getTweetsState());
+  },
+  _onWindowScroll: function() {
+    var h, s, scrolled;
+    h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    s = document.body.scrollTop || document.documentElement.scrollTop || 0;
+    scrolled = (h + s) > document.body.offsetHeight;
+    return TweetsActions.loadPagedTweets(scrolled);
   },
   render: function() {
     return React.createElement("div", {
@@ -214,11 +208,9 @@ var keyMirror;
 keyMirror = require("react/lib/keyMirror");
 
 module.exports = keyMirror({
-  SHOW_NEW_TWEETS: null,
-  LOAD_PAGE: null,
-  LOAD_TWEETS: null,
   LOAD_PAGED_TWEETS: null,
-  TWEET_ADD: null
+  SHOW_NEW_TWEETS: null,
+  ADD_TWEET: null
 });
 
 
@@ -20574,7 +20566,7 @@ module.exports = require('./lib/React');
 }.call(this));
 
 },{}],162:[function(require,module,exports){
-var AppDispatcher, EventEmitter, TweetStore, TweetsConstants, addTweet, loadPage, loadPagedTweets, loadTweets, onWindowScroll, showNewTweets, _, _count, _done, _page, _paging, _skip, _tweets;
+var AppDispatcher, EventEmitter, TweetStore, TweetsConstants, addTweet, loadPage, loadPagedTweets, showNewTweets, _, _count, _done, _page, _paging, _skip, _tweets;
 
 AppDispatcher = require("../dispatcher/AppDispatcher");
 
@@ -20596,12 +20588,7 @@ _skip = 0;
 
 _done = false;
 
-loadTweets = function(tweets) {
-  return _tweets = tweets;
-};
-
 addTweet = function(tweet) {
-  console.log("called addTweet in store: " + (JSON.stringify(tweet)));
   _count = _count + 1;
   _skip = _skip + 1;
   return _tweets.unshift(tweet);
@@ -20612,31 +20599,26 @@ loadPage = function(page) {
   request = new XMLHttpRequest();
   request.open("GET", "page/" + page + "/" + _skip, true);
   request.onload = function() {
+    var tweets;
     if (request.status >= 200 && request.status < 400) {
-      return loadPagedTweets(JSON.parse(request.responseText));
+      tweets = JSON.parse(request.responseText);
+      if (tweets.length > 0) {
+        return setTimeout((function() {
+          tweets.forEach(function(tweet) {
+            return _tweets.push(tweet);
+          });
+          return _paging = false;
+        }), 500);
+      } else {
+        _done = true;
+        return _paging = false;
+      }
     } else {
       _paging = false;
       return _done = true;
     }
   };
   return request.send();
-};
-
-loadPagedTweets = function(tweets) {
-  var updated;
-  if (tweets.length > 0) {
-    updated = _tweets;
-    tweets.forEach(function(tweet) {
-      return updated.push(tweet);
-    });
-    return setTimeout((function() {
-      _tweets = updated;
-      return _paging = false;
-    }), 1000);
-  } else {
-    _done = true;
-    return _paging = false;
-  }
 };
 
 showNewTweets = function() {
@@ -20649,11 +20631,7 @@ showNewTweets = function() {
   return _count = 0;
 };
 
-onWindowScroll = function() {
-  var h, s, scrolled;
-  h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-  s = document.body.scrollTop || document.documentElement.scrollTop || 0;
-  scrolled = (h + s) > document.body.offsetHeight;
+loadPagedTweets = function(scrolled) {
   if (scrolled && !_paging && !_done) {
     _paging = true;
     _page = _page + 1;
@@ -20683,9 +20661,6 @@ TweetStore = _.extend({}, EventEmitter.prototype, {
   emitChange: function() {
     return this.emit("change");
   },
-  checkWindowScroll: function() {
-    return window.addEventListener("scroll", onWindowScroll);
-  },
   addChangeListener: function(callback) {
     return this.on("change", callback);
   },
@@ -20698,20 +20673,14 @@ AppDispatcher.register(function(payload) {
   var action;
   action = payload.action;
   switch (action.actionType) {
-    case TweetsConstants.LOAD_PAGED_TWEETS:
-      loadPagedTweets(action.data);
-      break;
-    case TweetsConstants.LOAD_TWEETS:
-      loadTweets(action.data);
-      break;
-    case TweetsConstants.LOAD_PAGE:
-      loadPage(action.data);
-      break;
-    case TweetsConstants.TWEET_ADD:
+    case TweetsConstants.ADD_TWEET:
       addTweet(action.tweet);
       break;
     case TweetsConstants.SHOW_NEW_TWEETS:
       showNewTweets();
+      break;
+    case TweetsConstants.LOAD_PAGED_TWEETS:
+      loadPagedTweets(action.scrolled);
       break;
     default:
       return true;
