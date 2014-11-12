@@ -1,7 +1,7 @@
 AppDispatcher = require("../dispatcher/AppDispatcher")
 EventEmitter = require("events").EventEmitter
 TweetsConstants = require("../constants/TweetsConstants")
-_ = require('underscore')
+assign = require('object-assign')
 
 _tweets = []
 _count = 0
@@ -81,7 +81,7 @@ loadPagedTweets = (scrolled) ->
 
 
 # Extend TweetStore with EventEmitter to add eventing capabilities
-TweetStore = _.extend({}, EventEmitter::,
+TweetStore = assign({}, EventEmitter::,
   getTweets: ->
     _tweets
 
