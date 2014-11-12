@@ -4,6 +4,7 @@ dotenv.load()
 module.exports =
   port: process.env.PORT or 8080
   mongodbUrl: process.env.MONGOLAB_URI or process.env.MONGOHQ_URL or "mongodb://localhost/flux-tweets"
+  keywordsTrack: 'javascript' # comma separated!
   twitter:
     consumer_key: process.env.TWITTER_KEY
     consumer_secret: process.env.TWITTER_SECRET

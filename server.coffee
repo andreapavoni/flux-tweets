@@ -41,7 +41,7 @@ io = require("socket.io").listen(server)
 twit = new ntwitter(config.twitter)
 
 # Set a stream listener for tweets matching tracking keywords
-twit.stream "statuses/filter", {track: "javascript"}, (stream) ->
+twit.stream "statuses/filter", {track: config.keywordsTrack}, (stream) ->
   streamHandler stream, io
 
 module.exports = server
