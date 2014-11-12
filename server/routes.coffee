@@ -1,4 +1,3 @@
-# requireCoffeeReact = require('./utils/requireCoffeeReact')
 coffeeReact = require('coffee-react/register')
 React = require('react')
 TweetsApp = React.createFactory require('../client/components/TweetsApp.react')
