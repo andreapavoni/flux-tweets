@@ -4,6 +4,7 @@ Timeline = require("./Timeline.react")
 Loader = require("./Loader.react")
 NotificationBar = require("./NotificationBar.react")
 TweetsActions = require('../actions/TweetsActions')
+io = require('socket.io-client')
 
 getTweetsState = (tweets) ->
   # Set initial application state using props
