@@ -125,8 +125,8 @@ module.exports = Tweet = React.createClass({
     }, React.createElement("img", {
       "src": tweet.avatar,
       "className": "avatar",
-      "width": '32px',
-      "height": '32px'
+      "width": '48px',
+      "height": '48px'
     }), React.createElement("blockquote", null, React.createElement("cite", null, React.createElement("a", {
       "href": "http://www.twitter.com/" + tweet.screenname
     }, tweet.author), React.createElement("span", {

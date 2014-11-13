@@ -7,7 +7,7 @@ module.exports = Tweet = React.createClass(
 
     return (
       <li className={className}>
-        <img src={tweet.avatar} className="avatar" width='32px' height='32px' />
+        <img src={tweet.avatar} className="avatar" width='48px' height='48px' />
         <blockquote>
           <cite>
             <a href={"http://www.twitter.com/" + tweet.screenname}>{tweet.author}</a>
