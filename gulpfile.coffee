@@ -33,7 +33,7 @@ gulp.task "watch", ->
 
 gulp.task "dev", ['watch'], ->
   nodemon(
-    script: "./server/server.coffee"
+    script: "./server/app.coffee"
     ext: "coffee"
     env: { 'NODE_ENV': 'development' }
   )

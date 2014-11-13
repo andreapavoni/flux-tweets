@@ -43,7 +43,9 @@ app.use favicon("#{__dirname}/../public/favicon.ico")
 app.use "/", express.static("#{__dirname}/../public/")
 
 # Initialize http server
-server = http.createServer(app)
+server = http.createServer(app).listen(config.port, ->
+  console.log "Express server listening on port #{server.address().port}"
+)
 
 # Initialize socket.io
 io = require("socket.io").listen(server)
@@ -55,4 +57,3 @@ twit = new ntwitter(config.twitter)
 twit.stream "statuses/filter", {track: config.keywordsTrack}, (stream) ->
   streamHandler stream, io
 
-module.exports = server

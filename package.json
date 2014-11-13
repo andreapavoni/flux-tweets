@@ -39,6 +39,6 @@
     "gulp-util": "^3.0.1"
   },
   "scripts": {
-    "start": "coffee ./bin/www"
+    "start": "coffee ./server/app.coffee"
   }
 }
