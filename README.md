@@ -22,7 +22,7 @@ I've put a [live demo on heroku](http://flux-tweets.herokuapp.com)
 1. Clone this repository: `git clone git@github.com:apeacox/flux-tweets`
 2. Go into folder: `cd flux-tweets`
 3. Install dependencies: `npm install`
-4. Create a `.env` file and put credentials for Twitter API (see `config.coffee` for the variable names)
-5. Start the app: `npm start`
+4. Edit `.env.sample` and put credentials for Twitter API, save it as `.env`
+5. Start the app with `npm start` (or `gulp dev` if you want to tinker)
 6. View in browser at: `http://localhost:8080`
 7. Tweet away!
