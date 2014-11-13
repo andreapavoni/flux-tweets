@@ -6,7 +6,7 @@ module.exports = Loader = React.createClass(
 
     return (
       <div className={className}>
-        <img src="svg/loader.svg" />
+        <img src="svg/loader.svg" width='32px' height='32px' />
       </div>
     )
 )

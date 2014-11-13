@@ -54,7 +54,9 @@ module.exports = Loader = React.createClass({
     return React.createElement("div", {
       "className": className
     }, React.createElement("img", {
-      "src": "svg/loader.svg"
+      "src": "svg/loader.svg",
+      "width": '32px',
+      "height": '32px'
     }));
   }
 });
@@ -122,7 +124,9 @@ module.exports = Tweet = React.createClass({
       "className": className
     }, React.createElement("img", {
       "src": tweet.avatar,
-      "className": "avatar"
+      "className": "avatar",
+      "width": '32px',
+      "height": '32px'
     }), React.createElement("blockquote", null, React.createElement("cite", null, React.createElement("a", {
       "href": "http://www.twitter.com/" + tweet.screenname
     }, tweet.author), React.createElement("span", {

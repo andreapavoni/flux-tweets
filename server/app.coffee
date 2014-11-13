@@ -5,12 +5,12 @@ http = require("http")
 mongoose = require("mongoose")
 ntwitter = require("ntwitter")
 favicon = require("serve-favicon")
+compress = require("compression")()
 
 config = require("../config")
 routes = require("./routes")
 streamHandler = require("./utils/streamHandler")
 
-# Create an express instance
 app = express()
 
 # Set handlebars as the templating engine
@@ -26,6 +26,12 @@ app.set "view engine", "handlebars"
 
 # Disable etag headers on responses
 app.disable "etag"
+# Enable compression
+app.use compress
+# Serve favicon
+app.use favicon("#{__dirname}/../public/favicon.ico")
+# Set /public as our static content dir
+app.use "/", express.static("#{__dirname}/../public/")
 
 # Connect to our mongo database
 mongoose.connect config.mongodbUrl, (err, res) ->
@@ -35,12 +41,6 @@ mongoose.connect config.mongodbUrl, (err, res) ->
 # Routes
 app.get "/", routes.index
 app.get "/page/:page/:skip", routes.page
-
-# Serve favicon
-app.use favicon("#{__dirname}/../public/favicon.ico")
-
-# Set /public as our static content dir
-app.use "/", express.static("#{__dirname}/../public/")
 
 # Initialize http server
 server = http.createServer(app).listen(config.port, ->
