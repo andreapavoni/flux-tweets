@@ -5,8 +5,8 @@ Tweet = require("./models/Tweet")
 
 module.exports =
   index: (req, res) ->
-    # Call static model method to get tweets in the db
-    Tweet.getTweets 0, 0, (tweets, pages) ->
+    # Get tweets from the db
+    Tweet.getTweets 0, 0, (tweets) ->
       # Render React to a string, passing in our fetched tweets
       markup = React.renderToString(TweetsApp(tweets: tweets))
 

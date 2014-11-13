@@ -16,10 +16,7 @@ module.exports = (stream, io) ->
       date: data["created_at"]
       screenname: data["user"]["screen_name"]
 
-    # Create a new model instance with our object
-    tweetEntry = new Tweet(tweet)
-
     # Save 'er to the database
-    tweetEntry.save (err) ->
+    Tweet.create tweet, (err, res) ->
       # If everything is cool, socket.io emits the tweet.
       io.emit "tweet", tweet  unless err

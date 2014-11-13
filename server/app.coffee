@@ -2,7 +2,6 @@
 express = require("express")
 exphbs = require("express-handlebars")
 http = require("http")
-mongoose = require("mongoose")
 ntwitter = require("ntwitter")
 favicon = require("serve-favicon")
 compress = require("compression")()
@@ -26,17 +25,12 @@ app.set "view engine", "handlebars"
 
 # Disable etag headers on responses
 app.disable "etag"
-# Enable compression
+# Enable gzip compression
 app.use compress
 # Serve favicon
 app.use favicon("#{__dirname}/../public/favicon.ico")
 # Set /public as our static content dir
 app.use "/", express.static("#{__dirname}/../public/")
-
-# Connect to our mongo database
-mongoose.connect config.mongodbUrl, (err, res) ->
-  if err
-    console.log "MONGODB ERROR connecting to #{config.mongodbUrl}: #{err} "
 
 # Routes
 app.get "/", routes.index

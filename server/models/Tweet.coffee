@@ -1,34 +1,31 @@
-mongoose = require("mongoose")
+config = require("../../config")
+redis = require("redis-url").connect(config.redis.url)
 
-# Create a new schema for our tweet data
-schema = new mongoose.Schema(
-  twid: String
-  active: Boolean
-  author: String
-  avatar: String
-  body: String
-  date: Date
-  screenname: String
-)
+# schema
+#   twid: String
+#   active: Boolean
+#   author: String
+#   avatar: String
+#   body: String
+#   date: Date
+#   screenname: String
 
-# Create a static getTweets method to return tweet data from the db
-schema.statics.getTweets = (page, skip, callback) ->
-  tweets = []
-  start = (page * 10) + (skip * 1)
+module.exports = Tweet =
+  getTweets: (page, skip, callback) ->
+    tweets = []
+    start = (page * 10) + (skip * 1)
+    stop = start + 10
+    redis.lrange "timeline", start, stop, (err, res) ->
+      # If everything is cool...
+      unless err
+        res.forEach (raw) ->
+          tweet = JSON.parse(raw)
+          tweet.active = true # Set them to active
+          tweets.push tweet
 
-  # Query the db, using skip and limit to achieve page chunks
-  Tweet.find({}, "twid active author avatar body date screenname",
-    skip: start
-    limit: 10
-  ).sort(date: "desc").exec (err, docs) ->
-    # If everything is cool...
-    unless err
-      tweets = docs # We got tweets
-      tweets.forEach (tweet) ->
-        tweet.active = true # Set them to active
+      # Pass them back to the specified callback
+      callback tweets
 
-    # Pass them back to the specified callback
-    callback tweets
-
-# Return a Tweet model based upon the defined schema
-module.exports = Tweet = mongoose.model("Tweet", schema)
+  create: (tweet, callback) ->
+    redis.lpush("timeline", JSON.stringify(tweet), callback)
+    # redis.ltrim("timeline", 0, 1000) if totalTweets >= config.redis.limit
