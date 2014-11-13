@@ -14,6 +14,10 @@
         This work is based on this awesome tutorial: <a target="_blank" href="http://scotch.io/tutorials/javascript/build-a-real-time-twitter-stream-with-node-and-react-js">Learning React: Building A Real-Time Node and React Application</a> by <a target="_blank" href="http://twitter.com/ken_wheeler">@ken_wheeler</a>
       </p>
     </footer>
-    <script async src="js/bundle.min.js"></script>
+    {{#if productionEnv }}
+      <script async src="js/bundle.min.js"></script>
+    {{else}}
+      <script async src="js/bundle.js"></script>
+    {{/if}}
   </body>
 </html>

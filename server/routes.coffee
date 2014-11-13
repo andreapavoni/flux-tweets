@@ -14,6 +14,7 @@ module.exports =
       res.render "home",
         markup: markup # Pass rendered react markup
         state: JSON.stringify(tweets) # Pass current state to client side
+        productionEnv: process.env.NODE_ENV == 'production'
 
   page: (req, res) ->
     # Fetch tweets by page via param

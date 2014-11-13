@@ -35,7 +35,6 @@ gulp.task "dev", ['watch'], ->
   nodemon(
     script: "./server/app.coffee"
     ext: "coffee"
-    env: { 'NODE_ENV': 'development' }
   )
 
 gulp.task "default", ["build"]
