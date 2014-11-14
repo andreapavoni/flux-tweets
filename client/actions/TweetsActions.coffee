@@ -5,10 +5,10 @@ TweetsConstants = require("../constants/TweetsConstants")
 module.exports = TweetsActions =
 
   # Load paged tweets from the server
-  loadPagedTweets: (scrolled) ->
+  loadPage: (page) ->
     AppDispatcher.handleAction
-      actionType: TweetsConstants.LOAD_PAGED_TWEETS
-      scrolled: scrolled
+      actionType: TweetsConstants.LOAD_PAGE
+      page: page
 
   # Add tweet to store
   addTweet: (tweet) ->

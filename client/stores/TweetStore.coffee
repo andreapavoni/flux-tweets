@@ -3,27 +3,33 @@ EventEmitter = require("events").EventEmitter
 TweetsConstants = require("../constants/TweetsConstants")
 assign = require('object-assign')
 
-_tweets = []
-_count = 0
-_page = 0
-_paging = false
-_skip = 0
-_done = false
+CHANGE_EVENT='change'
+
+_currentState =
+  tweets: []
+  count: 0
+  page: 0
+  paging: false
+  skip: 0
+  done: false
 
 addTweet = (tweet) ->
-  # Increment the unread count
-  _count = _count + 1
-  # Increment the skip count
-  _skip = _skip + 1
-  # Add tweet to the beginning of the tweets array
-  _tweets.unshift tweet
+  _currentState.tweets.unshift tweet
+
+  TweetStore.setState
+    skip: _currentState.skip + 1 # Increment the skip count
+    count: _currentState.count + 1 # Increment the unread count
+    tweets: _currentState.tweets # Add tweet to head of tweets
 
 
 # Get JSON from server by page
 loadPage = (page) ->
+  # Set application state (Paging, Increment page)
+  TweetStore.setState({page: page, paging: true})
+
   # Setup our ajax request
   request = new XMLHttpRequest()
-  request.open "GET", "page/#{page}/#{_skip}", true
+  request.open "GET", "page/#{page}/#{_currentState.skip}", true
 
   request.onload = ->
     # If everything is cool...
@@ -34,85 +40,58 @@ loadPage = (page) ->
       # If we still have tweets...
       if tweets.length > 0
         # Push them onto the end of the current tweets array
-        updated = _tweets
+        updated = _currentState.tweets
         tweets.forEach (tweet) ->
           updated.push tweet
 
         # This app is so fast, I actually use a timeout for dramatic effect
         # Otherwise you'd never see our super sexy loader svg
         setTimeout (->
-          # Update tweets
-          _tweets = updated
-          # Paging completed
-          _paging = false
-        ), 1500
+          TweetStore.setState({tweets: updated, paging: false})
+        ), 2500
       else
-        # Paging complete
-        _done = true
-        _paging = false
+        # Paging complete, not paging
+        TweetStore.setState({done: true, paging: false})
     else
-      # Set application state (Not paging, paging complete)
-      _paging = false
-      _done = true
+      # Set application state (Paging complete, not paging)
+      TweetStore.setState({done: true, paging: false})
+
   request.send()
 
 
 # Show the unread tweets
 showNewTweets = ->
   # Get current application state
-  updated = _tweets
+  updated = _currentState.tweets
 
   # Mark our tweets active
   updated.forEach (tweet) ->
     tweet.active = true
 
   # Set application state (active tweets + reset unread count)
-  _tweets = updated
-  _count = 0
-
-
-loadPagedTweets = (scrolled) ->
-  # If scrolled enough, not currently paging and not complete...
-  if scrolled and not _paging and not _done
-    # Set application state (Paging, Increment page)
-    _paging = true
-    _page = _page + 1
-
-    # Get the next page of tweets from the server
-    loadPage _page
-
+  TweetStore.setState({tweets: updated, count: 0})
 
 # Extend TweetStore with EventEmitter to add eventing capabilities
 TweetStore = assign({}, EventEmitter::,
-  getTweets: ->
-    _tweets
+  getState: ->
+    _currentState
 
-  getTweetsCount: ->
-    _count
-
-  getPage: ->
-    _page
-
-  isPaging: ->
-    _paging
-
-  isDone: ->
-    _done
-
-  getSkip: ->
-    _skip
+  setState: (obj) ->
+    _currentState = assign(_currentState, obj)
+    @emitChange()
+    _currentState
 
   # Emit Change event
   emitChange: ->
-    @emit "change"
+    @emit CHANGE_EVENT
 
   # Add change listener
   addChangeListener: (callback) ->
-    @on "change", callback
+    @on CHANGE_EVENT, callback
 
   # Remove change listener
   removeChangeListener: (callback) ->
-    @removeListener "change", callback
+    @removeListener CHANGE_EVENT, callback
 )
 
 # Register callback with AppDispatcher
@@ -125,8 +104,8 @@ AppDispatcher.register (payload) ->
       addTweet(action.tweet)
     when TweetsConstants.SHOW_NEW_TWEETS
       showNewTweets()
-    when TweetsConstants.LOAD_PAGED_TWEETS
-      loadPagedTweets(action.scrolled)
+    when TweetsConstants.LOAD_PAGE
+      loadPage(action.page)
     else
       return true
 

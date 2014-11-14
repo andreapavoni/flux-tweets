@@ -5,6 +5,7 @@ This is a fork of the [code repository](https://github.com/scotch-io/react-tweet
 * CoffeeScript instead of plain JS
 * [ReactJS](http://facebook.github.io/react/)  >= 0.12
 * [Flux](http://facebook.github.io/flux/)
+* [Redis](http://redis.io) instead of MongoDB
 * various refactorings
 
 ## Requirements

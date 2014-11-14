@@ -6,10 +6,10 @@ AppDispatcher = require("../dispatcher/AppDispatcher");
 TweetsConstants = require("../constants/TweetsConstants");
 
 module.exports = TweetsActions = {
-  loadPagedTweets: function(scrolled) {
+  loadPage: function(page) {
     return AppDispatcher.handleAction({
-      actionType: TweetsConstants.LOAD_PAGED_TWEETS,
-      scrolled: scrolled
+      actionType: TweetsConstants.LOAD_PAGE,
+      page: page
     });
   },
   addTweet: function(tweet) {
@@ -140,7 +140,7 @@ module.exports = Tweet = React.createClass({
 
 
 },{"react":163}],7:[function(require,module,exports){
-var Loader, NotificationBar, React, Timeline, TweetStore, TweetsActions, TweetsApp, getTweetsState, io;
+var Loader, NotificationBar, React, Timeline, TweetStore, TweetsActions, TweetsApp, io;
 
 React = require("react");
 
@@ -156,20 +156,11 @@ TweetsActions = require('../actions/TweetsActions');
 
 io = require('socket.io-client');
 
-getTweetsState = function(tweets) {
-  return {
-    tweets: tweets || TweetStore.getTweets(),
-    count: TweetStore.getTweetsCount(),
-    page: TweetStore.getPage(),
-    paging: TweetStore.isPaging(),
-    skip: TweetStore.getSkip(),
-    done: TweetStore.isDone()
-  };
-};
-
 module.exports = TweetsApp = React.createClass({
   getInitialState: function() {
-    return getTweetsState(this.props.tweets);
+    return TweetStore.setState({
+      tweets: this.props.tweets
+    });
   },
   componentDidMount: function() {
     var socket;
@@ -185,14 +176,16 @@ module.exports = TweetsApp = React.createClass({
     return window.removeEventListener("scroll", this._onWindowScroll);
   },
   _onChange: function() {
-    return this.setState(getTweetsState());
+    return this.setState(TweetStore.getState());
   },
   _onWindowScroll: function() {
     var h, s, scrolled;
     h = window.innerHeight || document.documentElement.clientHeight || 0;
     s = document.body.scrollTop || document.documentElement.scrollTop || 0;
     scrolled = (h + s) > document.body.offsetHeight;
-    return TweetsActions.loadPagedTweets(scrolled);
+    if (scrolled && !(this.state.paging && this.state.done)) {
+      return TweetsActions.loadPage(this.state.page + 1);
+    }
   },
   render: function() {
     return React.createElement("div", {
@@ -215,7 +208,7 @@ var keyMirror;
 keyMirror = require('keymirror');
 
 module.exports = keyMirror({
-  LOAD_PAGED_TWEETS: null,
+  LOAD_PAGE: null,
   SHOW_NEW_TWEETS: null,
   ADD_TWEET: null
 });
@@ -241,7 +234,7 @@ module.exports = AppDispatcher;
 
 
 },{"flux":11}],10:[function(require,module,exports){
-var AppDispatcher, EventEmitter, TweetStore, TweetsConstants, addTweet, assign, loadPage, loadPagedTweets, showNewTweets, _count, _done, _page, _paging, _skip, _tweets;
+var AppDispatcher, CHANGE_EVENT, EventEmitter, TweetStore, TweetsConstants, addTweet, assign, loadPage, showNewTweets, _currentState;
 
 AppDispatcher = require("../dispatcher/AppDispatcher");
 
@@ -251,48 +244,60 @@ TweetsConstants = require("../constants/TweetsConstants");
 
 assign = require('object-assign');
 
-_tweets = [];
+CHANGE_EVENT = 'change';
 
-_count = 0;
-
-_page = 0;
-
-_paging = false;
-
-_skip = 0;
-
-_done = false;
+_currentState = {
+  tweets: [],
+  count: 0,
+  page: 0,
+  paging: false,
+  skip: 0,
+  done: false
+};
 
 addTweet = function(tweet) {
-  _count = _count + 1;
-  _skip = _skip + 1;
-  return _tweets.unshift(tweet);
+  _currentState.tweets.unshift(tweet);
+  return TweetStore.setState({
+    skip: _currentState.skip + 1,
+    count: _currentState.count + 1,
+    tweets: _currentState.tweets
+  });
 };
 
 loadPage = function(page) {
   var request;
+  TweetStore.setState({
+    page: page,
+    paging: true
+  });
   request = new XMLHttpRequest();
-  request.open("GET", "page/" + page + "/" + _skip, true);
+  request.open("GET", "page/" + page + "/" + _currentState.skip, true);
   request.onload = function() {
     var tweets, updated;
     if (request.status >= 200 && request.status < 400) {
       tweets = JSON.parse(request.responseText);
       if (tweets.length > 0) {
-        updated = _tweets;
+        updated = _currentState.tweets;
         tweets.forEach(function(tweet) {
           return updated.push(tweet);
         });
         return setTimeout((function() {
-          _tweets = updated;
-          return _paging = false;
-        }), 1500);
+          return TweetStore.setState({
+            tweets: updated,
+            paging: false
+          });
+        }), 2500);
       } else {
-        _done = true;
-        return _paging = false;
+        return TweetStore.setState({
+          done: true,
+          paging: false
+        });
       }
     } else {
-      _paging = false;
-      return _done = true;
+      return TweetStore.setState({
+        done: true,
+        paging: false
+      });
     }
   };
   return request.send();
@@ -300,49 +305,33 @@ loadPage = function(page) {
 
 showNewTweets = function() {
   var updated;
-  updated = _tweets;
+  updated = _currentState.tweets;
   updated.forEach(function(tweet) {
     return tweet.active = true;
   });
-  _tweets = updated;
-  return _count = 0;
-};
-
-loadPagedTweets = function(scrolled) {
-  if (scrolled && !_paging && !_done) {
-    _paging = true;
-    _page = _page + 1;
-    return loadPage(_page);
-  }
+  return TweetStore.setState({
+    tweets: updated,
+    count: 0
+  });
 };
 
 TweetStore = assign({}, EventEmitter.prototype, {
-  getTweets: function() {
-    return _tweets;
+  getState: function() {
+    return _currentState;
   },
-  getTweetsCount: function() {
-    return _count;
-  },
-  getPage: function() {
-    return _page;
-  },
-  isPaging: function() {
-    return _paging;
-  },
-  isDone: function() {
-    return _done;
-  },
-  getSkip: function() {
-    return _skip;
+  setState: function(obj) {
+    _currentState = assign(_currentState, obj);
+    this.emitChange();
+    return _currentState;
   },
   emitChange: function() {
-    return this.emit("change");
+    return this.emit(CHANGE_EVENT);
   },
   addChangeListener: function(callback) {
-    return this.on("change", callback);
+    return this.on(CHANGE_EVENT, callback);
   },
   removeChangeListener: function(callback) {
-    return this.removeListener("change", callback);
+    return this.removeListener(CHANGE_EVENT, callback);
   }
 });
 
@@ -356,8 +345,8 @@ AppDispatcher.register(function(payload) {
     case TweetsConstants.SHOW_NEW_TWEETS:
       showNewTweets();
       break;
-    case TweetsConstants.LOAD_PAGED_TWEETS:
-      loadPagedTweets(action.scrolled);
+    case TweetsConstants.LOAD_PAGE:
+      loadPage(action.page);
       break;
     default:
       return true;

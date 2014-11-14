@@ -6,20 +6,11 @@ NotificationBar = require("./NotificationBar.react")
 TweetsActions = require('../actions/TweetsActions')
 io = require('socket.io-client')
 
-getTweetsState = (tweets) ->
-  # Set initial application state using props
-  tweets: tweets or TweetStore.getTweets()
-  count: TweetStore.getTweetsCount()
-  page: TweetStore.getPage()
-  paging: TweetStore.isPaging()
-  skip: TweetStore.getSkip()
-  done: TweetStore.isDone()
-
 module.exports = TweetsApp = React.createClass(
-
   # Set the initial component state
   getInitialState: ->
-    getTweetsState(@props.tweets)
+    # Set initial application state using props
+    TweetStore.setState(tweets: @props.tweets)
 
   # Called directly after component rendering, only on client
   componentDidMount: ->
@@ -37,7 +28,7 @@ module.exports = TweetsApp = React.createClass(
     window.removeEventListener "scroll", @_onWindowScroll
 
   _onChange: ->
-    @setState getTweetsState()
+    @setState TweetStore.getState()
 
   _onWindowScroll: ->
     # Get scroll pos & window data
@@ -46,8 +37,11 @@ module.exports = TweetsApp = React.createClass(
 
     # Check if window has scrolled
     scrolled = (h + s) > document.body.offsetHeight
-    # Call action
-    TweetsActions.loadPagedTweets(scrolled)
+
+    # If scrolled enough, not currently paging and not complete...
+    if scrolled && !(@state.paging && @state.done)
+      # Call action: load next page
+      TweetsActions.loadPage(@state.page + 1)
 
   # Render the component
   render: ->
