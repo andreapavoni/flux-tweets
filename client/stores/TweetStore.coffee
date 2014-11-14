@@ -14,12 +14,13 @@ _currentState =
   done: false
 
 addTweet = (tweet) ->
+  # Add tweet to head of tweets
   _currentState.tweets.unshift tweet
 
   TweetStore.setState
     skip: _currentState.skip + 1 # Increment the skip count
     count: _currentState.count + 1 # Increment the unread count
-    tweets: _currentState.tweets # Add tweet to head of tweets
+    tweets: _currentState.tweets
 
 
 # Get JSON from server by page
@@ -33,27 +34,20 @@ loadPage = (page) ->
 
   request.onload = ->
     # If everything is cool...
-    if request.status >= 200 and request.status < 400
-      # Load our next page
-      tweets = JSON.parse(request.responseText)
+    reqOk = request.status >= 200 and request.status < 400
+    if reqOk && (tweets = JSON.parse(request.responseText)).length > 0
+      # Push them onto the end of the current tweets array
+      updated = _currentState.tweets
+      tweets.forEach (tweet) ->
+        updated.push tweet
 
-      # If we still have tweets...
-      if tweets.length > 0
-        # Push them onto the end of the current tweets array
-        updated = _currentState.tweets
-        tweets.forEach (tweet) ->
-          updated.push tweet
-
-        # This app is so fast, I actually use a timeout for dramatic effect
-        # Otherwise you'd never see our super sexy loader svg
-        setTimeout (->
-          TweetStore.setState({tweets: updated, paging: false})
-        ), 2500
-      else
-        # Paging complete, not paging
-        TweetStore.setState({done: true, paging: false})
+      # This app is so fast, I actually use a timeout for dramatic effect
+      # Otherwise you'd never see our super sexy loader svg
+      window.setTimeout (->
+        TweetStore.setState({tweets: updated, done: true, paging: false})
+      ), 2500
     else
-      # Set application state (Paging complete, not paging)
+      # Paging complete, not paging
       TweetStore.setState({done: true, paging: false})
 
   request.send()

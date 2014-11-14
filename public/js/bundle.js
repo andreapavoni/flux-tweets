@@ -273,26 +273,20 @@ loadPage = function(page) {
   request = new XMLHttpRequest();
   request.open("GET", "page/" + page + "/" + _currentState.skip, true);
   request.onload = function() {
-    var tweets, updated;
-    if (request.status >= 200 && request.status < 400) {
-      tweets = JSON.parse(request.responseText);
-      if (tweets.length > 0) {
-        updated = _currentState.tweets;
-        tweets.forEach(function(tweet) {
-          return updated.push(tweet);
-        });
-        return setTimeout((function() {
-          return TweetStore.setState({
-            tweets: updated,
-            paging: false
-          });
-        }), 2500);
-      } else {
+    var reqOk, tweets, updated;
+    reqOk = request.status >= 200 && request.status < 400;
+    if (reqOk && (tweets = JSON.parse(request.responseText)).length > 0) {
+      updated = _currentState.tweets;
+      tweets.forEach(function(tweet) {
+        return updated.push(tweet);
+      });
+      return window.setTimeout((function() {
         return TweetStore.setState({
+          tweets: updated,
           done: true,
           paging: false
         });
-      }
+      }), 2500);
     } else {
       return TweetStore.setState({
         done: true,
