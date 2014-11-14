@@ -27,5 +27,9 @@ module.exports = Tweet =
       callback tweets
 
   create: (tweet, callback) ->
-    redis.lpush("timeline", JSON.stringify(tweet), callback)
-    # redis.ltrim("timeline", 0, 1000) if totalTweets >= config.redis.limit
+    redis.multi()
+      .lpush("timeline", JSON.stringify(tweet), callback)
+      .llen("timeline", (err, totalTweets) ->
+        if !err && totalTweets >= config.redis.limit
+          redis.ltrim("timeline", 0, config.redis.limit)
+      ).exec()
