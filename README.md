@@ -11,7 +11,7 @@ This is a fork of the [code repository](https://github.com/scotch-io/react-tweet
 
 * nodejs
 * npm
-* mongodb
+* redis
 
 ## Live Demo
 
@@ -23,6 +23,7 @@ I've put a [live demo on heroku](http://flux-tweets.herokuapp.com)
 2. Go into folder: `cd flux-tweets`
 3. Install dependencies: `npm install`
 4. Edit `.env.sample` and put credentials for Twitter API, save it as `.env`
-5. Start the app with `npm start` (or `gulp dev` if you want to tinker)
-6. View in browser at: `http://localhost:8080`
-7. Tweet away!
+5. Start redis server
+6. Start the app with `npm start` (or `gulp dev` if you want to tinker)
+7. View in browser at: `http://localhost:8080`
+8. Tweet away!
