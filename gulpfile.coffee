@@ -21,6 +21,7 @@ gulp.task 'build', ->
     .pipe(size showFiles: true, title: "Plain JS")
 
 gulp.task 'dist', ['build'], ->
+  process.env.NODE_ENV = 'production'
   gulp.src("#{DEST}/js/#{JS_BUNDLE}.js")
     .pipe(uglify())
     .pipe(rename("#{JS_BUNDLE}.min.js"))
